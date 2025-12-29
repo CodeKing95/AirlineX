@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    :root {
+      --bg-color: #f5f7fb;
+      --bg-secondary: #ffffff;
+      --text-color: #1f2933;
+      --text-muted: #6b7280;
+      --accent: #2563eb;
+      --accent-soft: #e0edff;
+      --border-color: #e5e7eb;
+      --sidebar-bg: #111827;
+      --sidebar-text: #e5e7eb;
+      --sidebar-active: #2563eb;
+    }
+
+    body.dark {
+      --bg-color: #020617;
+      --bg-secondary: #020617;
+      --text-color: #e5e7eb;
+      --text-muted: #9ca3af;
+      --border-color: #1f2937;
+      --accent-soft: #1d3c70;
+      --sidebar-bg: #020617;
+      --sidebar-text: #e5e7eb;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg-color);
+      color: var(--text-color);
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .layout {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: 240px;
+      background: var(--sidebar-bg);
+      color: var(--sidebar-text);
+      padding: 20px 16px;
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      inset: 0 auto 0 0;
+      z-index: 50;
+      transition: transform 0.25s ease;
+    }
+
+    .sidebar-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 32px;
+      gap: 8px;
+    }
+
+    .sidebar-logo {
+      width: 36px;
+      height: 36px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #2563eb, #38bdf8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 20px;
+    }
+
+    .sidebar-title {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .sidebar-subtitle {
+      font-size: 12px;
+      color: #9ca3af;
+    }
+
+    .nav-section-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #6b7280;
+      margin-bottom: 8px;
+      margin-top: 4px;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      padding: 10px 10px;
+      border-radius: 8px;
+      font-size: 14px;
+      color: var(--sidebar-text);
+      margin-bottom: 4px;
+      gap: 8px;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .nav-link span.icon {
+      width: 18px;
+      text-align: center;
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    .nav-link.active,
+    .nav-link:hover {
+      background: rgba(37, 99, 235, 0.18);
+      color: #ffffff;
+    }
+
+    .sidebar-footer {
+      margin-top: auto;
+      font-size: 12px;
+      color: #6b7280;
+      border-top: 1px solid rgba(75, 85, 99, 0.5);
+      padding-top: 12px;
+    }
+
+    /* HAMBURGER FOR MOBILE */
+    .sidebar-toggle {
+      display: none;
+      position: fixed;
+      top: 14px;
+      left: 12px;
+      z-index: 60;
+      background: var(--bg-secondary);
+      border-radius: 999px;
+      padding: 8px 10px;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.25);
+      cursor: pointer;
+    }
+
+    .sidebar-toggle span {
+      display: block;
+      width: 18px;
+      height: 2px;
+      background: var(--text-color);
+      margin: 3px 0;
+      border-radius: 999px;
+    }
+
+    /* MAIN AREA */
+    .main {
+      margin-left: 240px;
+      flex: 1;
+      padding: 18px 20px;
+      transition: margin-left 0.25s ease;
+    }
+
+    /* TOPBAR */
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      gap: 16px;
+    }
+
+    .topbar-left h1 {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .topbar-left p {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .search-box {
+      display: flex;
+      align-items: center;
+      background: var(--bg-secondary);
+      border-radius: 999px;
+      padding: 6px 10px;
+      border: 1px solid var(--border-color);
+      min-width: 220px;
+    }
+
+    .search-box input {
+      border: none;
+      outline: none;
+      background: transparent;
+      font-size: 13px;
+      width: 100%;
+      padding-left: 6px;
+      color: var(--text-color);
+    }
+
+    .search-box span {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn-ghost {
+      border-radius: 999px;
+      padding: 6px 10px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-secondary);
+      font-size: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-color);
+    }
+
+    .profile {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg-secondary);
+      border-radius: 999px;
+      padding: 4px 10px 4px 4px;
+      border: 1px solid var(--border-color);
+    }
+
+    .profile-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #2563eb, #10b981);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #e5e7eb;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .profile-info {
+      font-size: 12px;
+    }
+
+    .profile-info div.name {
+      font-weight: 600;
+    }
+
+    .profile-info div.role {
+      color: var(--text-muted);
+    }
+
+    /* CONTENT GRID */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    /* CARDS */
+    .card {
+      background: var(--bg-secondary);
+      border-radius: 12px;
+      padding: 16px 16px 14px;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .card-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .card-value {
+      font-size: 22px;
+      font-weight: 600;
+      margin-top: 2px;
+      margin-bottom: 3px;
+    }
+
+    .card-trend {
+      font-size: 12px;
+      color: #16a34a;
+    }
+
+    .card-trend.negative {
+      color: #dc2626;
+    }
+
+    .pill {
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+
+    /* TABLE CARD */
+    .card-table {
+      margin-top: 6px;
+      overflow: hidden;
+    }
+
+    .card-table table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .card-table thead {
+      background: #f3f4f6;
+    }
+
+    body.dark .card-table thead {
+      background: #020617;
+    }
+
+    .card-table th,
+    .card-table td {
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--border-color);
+      text-align: left;
+    }
+
+    .badge {
+      font-size: 11px;
+      padding: 2px 7px;
+      border-radius: 999px;
+      display: inline-block;
+    }
+
+    .badge-success {
+      background: rgba(22, 163, 74, 0.12);
+      color: #16a34a;
+    }
+
+    .badge-warning {
+      background: rgba(234, 179, 8, 0.12);
+      color: #ca8a04;
+    }
+
+    .badge-danger {
+      background: rgba(220, 38, 38, 0.12);
+      color: #dc2626;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      display: inline-block;
+      margin-right: 4px;
+    }
+
+    .dot-green {
+      background: #16a34a;
+    }
+
+    .dot-yellow {
+      background: #eab308;
+    }
+
+    .dot-red {
+      background: #dc2626;
+    }
+
+    /* UTILITIES */
+    .text-muted {
+      color: var(--text-muted);
+    }
+
+    .flex {
+      display: flex;
+      align-items: center;
+    }
+
+    .justify-between {
+      justify-content: space-between;
+    }
+
+    .gap-4 {
+      gap: 16px;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 900px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
+      .main {
+        margin-left: 0;
+        padding-top: 54px;
+      }
+
+      .sidebar-toggle {
+        display: block;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .topbar {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .topbar-right {
+        align-self: stretch;
+        justify-content: space-between;
+        width: 100%;
+      }
+
+      .grid {
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+      }
+    }
+
+    @media (min-width: 769px) {
+      .col-span-3 {
+        grid-column: span 3 / span 3;
+      }
+
+      .col-span-8 {
+        grid-column: span 8 / span 8;
+      }
+
+      .col-span-4 {
+        grid-column: span 4 / span 4;
+      }
+
+      .col-span-12 {
+        grid-column: span 12 / span 12;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .col-span-3,
+      .col-span-4,
+      .col-span-8,
+      .col-span-12 {
+        grid-column: span 6 / span 6;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="sidebar-toggle" id="sidebarToggle">
+  <span></span>
+  <span></span>
+  <span></span>
+</div>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">✈</div>
+      <div>
+        <div class="sidebar-title">Admin Panel</div>
+        <div class="sidebar-subtitle">Airline Management</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="nav-section-title">Main</div>
+      <div class="nav-link active">
+        <span class="icon">📊</span>
+        <span>Dashboard</span>
+      </div>
+      <div class="nav-link">
+        <span class="icon">🧑‍✈️</span>
+        <span>Passengers</span>
+      </div>
+      <div class="nav-link">
+        <span class="icon">🛫</span>
+        <span>Flights</span>
+      </div>
+      <div class="nav-link">
+        <span class="icon">📑</span>
+        <span>Bookings</span>
+      </div>
+    </div>
+
+    <div style="margin-top: 20px;">
+      <div class="nav-section-title">System</div>
+      <div class="nav-link" id="themeToggle">
+        <span class="icon">🌓</span>
+        <span>Toggle Theme</span>
+      </div>
+      <div class="nav-link">
+        <span class="icon">⚙️</span>
+        <span>Settings</span>
+      </div>
+      <div class="nav-link">
+        <span class="icon">🚪</span>
+        <span>Logout</span>
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <div>© <span id="year"></span> Airline Admin</div>
+      <div class="text-muted">Dashboard overview for internal use.</div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+    <div class="topbar">
+      <div class="topbar-left">
+        <h1>Dashboard Overview</h1>
+        <p>Welcome back, Admin. Here’s a summary of today’s activity.</p>
+      </div>
+
+      <div class="topbar-right">
+        <div class="search-box">
+          <span>🔍</span>
+          <input id="tableSearch" type="text" placeholder="Search bookings..." />
+        </div>
+        <button class="btn-ghost" id="refreshBtn">⟳ Refresh</button>
+        <div class="profile">
+          <div class="profile-avatar">AD</div>
+          <div class="profile-info">
+            <div class="name">Admin</div>
+            <div class="role">System Admin</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CARDS + TABLE -->
+    <div class="grid">
+
+      <!-- STAT CARDS -->
+      <section class="col-span-3 card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Total Passengers</div>
+            <div class="card-value" id="totalPassengers">1,248</div>
+          </div>
+          <span class="pill">+12 today</span>
+        </div>
+        <div class="text-muted" style="font-size: 12px;">
+          Total registered passengers in the system.
+        </div>
+      </section>
+
+      <section class="col-span-3 card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Active Flights</div>
+            <div class="card-value" id="activeFlights">32</div>
+          </div>
+          <span class="pill">Live</span>
+        </div>
+        <div class="text-muted" style="font-size: 12px;">
+          Ongoing flights currently in progress.
+        </div>
+      </section>
+
+      <section class="col-span-3 card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Bookings Today</div>
+            <div class="card-value" id="bookingsToday">94</div>
+          </div>
+          <div class="card-trend">▲ 8% vs yesterday</div>
+        </div>
+        <div class="text-muted" style="font-size: 12px;">
+          New bookings created in the last 24 hours.
+        </div>
+      </section>
+
+      <section class="col-span-3 card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Revenue (Today)</div>
+            <div class="card-value" id="revenueToday">$18,430</div>
+          </div>
+          <div class="card-trend negative">▼ 3% vs target</div>
+        </div>
+        <div class="text-muted" style="font-size: 12px;">
+          Approximate gross revenue from all bookings today.
+        </div>
+      </section>
+
+      <!-- RECENT BOOKINGS TABLE -->
+      <section class="col-span-8 card">
+        <div class="card-header">
+          <div class="card-title">Recent Bookings</div>
+          <span class="text-muted" style="font-size: 12px;">Last 10 bookings</span>
+        </div>
+
+        <div class="card-table">
+          <table id="bookingsTable">
+            <thead>
+            <tr>
+              <th>Booking ID</th>
+              <th>Passenger</th>
+              <th>Flight</th>
+              <th>Route</th>
+              <th>Status</th>
+              <th>Booked At</th>
+            </tr>
+            </thead>
+            <tbody>
+            <!-- JS will populate -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- SYSTEM STATUS CARD -->
+      <section class="col-span-4 card">
+        <div class="card-header">
+          <div class="card-title">System Status</div>
+        </div>
+        <ul style="list-style:none; margin-top:10px; font-size:13px; display:flex; flex-direction:column; gap:6px;">
+          <li>
+            <span class="status-dot dot-green"></span>
+            API Server
+            <span class="badge badge-success" style="float:right;">Operational</span>
+          </li>
+          <li>
+            <span class="status-dot dot-green"></span>
+            Database
+            <span class="badge badge-success" style="float:right;">Connected</span>
+          </li>
+          <li>
+            <span class="status-dot dot-yellow"></span>
+            Email Service
+            <span class="badge badge-warning" style="float:right;">Degraded</span>
+          </li>
+          <li>
+            <span class="status-dot dot-green"></span>
+            Payment Gateway
+            <span class="badge badge-success" style="float:right;">Healthy</span>
+          </li>
+          <li>
+            <span class="status-dot dot-red"></span>
+            Legacy API v1
+            <span class="badge badge-danger" style="float:right;">Deprecated</span>
+          </li>
+        </ul>
+      </section>
+
+      <!-- PLACEHOLDER STATS / MESSAGE CARD -->
+      <section class="col-span-12 card">
+        <div class="card-header">
+          <div class="card-title">Notes</div>
+        </div>
+        <p style="font-size:13px; margin-top:6px; color:var(--text-muted);">
+          This is a static front-end admin dashboard example. You can connect it to your
+          PHP backend or REST API by replacing the mock data in JavaScript with real AJAX/fetch
+          calls to your server.
+        </p>
+      </section>
+
+    </div>
+  </main>
+
+</div>
+
+<script>
+  // ---- MOCK DATA FOR BOOKINGS ----
+  const bookingsData = [
+    {
+      id: 'BK-10234',
+      passenger: 'John Miller',
+      flight: 'LH 204',
+      route: 'LHR → FRA',
+      status: 'Confirmed',
+      time: '2025-12-01 09:42'
+    },
+    {
+      id: 'BK-10235',
+      passenger: 'Sarah Johnson',
+      flight: 'BA 117',
+      route: 'LHR → JFK',
+      status: 'Pending',
+      time: '2025-12-01 09:15'
+    },
+    {
+      id: 'BK-10236',
+      passenger: 'Ali Hassan',
+      flight: 'EK 006',
+      route: 'LHR → DXB',
+      status: 'Cancelled',
+      time: '2025-12-01 08:59'
+    },
+    {
+      id: 'BK-10237',
+      passenger: 'Maria Rossi',
+      flight: 'AZ 403',
+      route: 'LHR → FCO',
+      status: 'Confirmed',
+      time: '2025-12-01 08:30'
+    },
+    {
+      id: 'BK-10238',
+      passenger: 'Daniel Kim',
+      flight: 'KE 908',
+      route: 'LHR → ICN',
+      status: 'Confirmed',
+      time: '2025-12-01 08:12'
+    },
+    {
+      id: 'BK-10239',
+      passenger: 'Emma Brown',
+      flight: 'LH 902',
+      route: 'LHR → MUC',
+      status: 'Pending',
+      time: '2025-12-01 07:51'
+    },
+    {
+      id: 'BK-10240',
+      passenger: 'Lucas Garcia',
+      flight: 'IB 3167',
+      route: 'LHR → MAD',
+      status: 'Confirmed',
+      time: '2025-12-01 07:33'
+    },
+    {
+      id: 'BK-10241',
+      passenger: 'Sofia Novak',
+      flight: 'QR 016',
+      route: 'LHR → DOH',
+      status: 'Confirmed',
+      time: '2025-12-01 07:02'
+    },
+    {
+      id: 'BK-10242',
+      passenger: 'Noah Wilson',
+      flight: 'VS 027',
+      route: 'LHR → MCO',
+      status: 'Cancelled',
+      time: '2025-12-01 06:48'
+    },
+    {
+      id: 'BK-10243',
+      passenger: 'Olivia Davis',
+      flight: 'UA 881',
+      route: 'LHR → ORD',
+      status: 'Confirmed',
+      time: '2025-12-01 06:21'
+    }
+  ];
+
+  function getStatusBadge(status) {
+    if (status === 'Confirmed') {
+      return '<span class="badge badge-success">Confirmed</span>';
+    } else if (status === 'Pending') {
+      return '<span class="badge badge-warning">Pending</span>';
+    } else {
+      return '<span class="badge badge-danger">Cancelled</span>';
+    }
+  }
+
+  function renderBookingsTable(data) {
+    const tbody = document.querySelector('#bookingsTable tbody');
+    tbody.innerHTML = '';
+
+    data.forEach(row => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${row.id}</td>
+        <td>${row.passenger}</td>
+        <td>${row.flight}</td>
+        <td>${row.route}</td>
+        <td>${getStatusBadge(row.status)}</td>
+        <td>${row.time}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  // Initial table render
+  renderBookingsTable(bookingsData);
+
+  // Search / filter in table
+  const searchInput = document.getElementById('tableSearch');
+  searchInput.addEventListener('input', (e) => {
+    const query = e.target.value.toLowerCase().trim();
+    const filtered = bookingsData.filter(row =>
+      row.id.toLowerCase().includes(query) ||
+      row.passenger.toLowerCase().includes(query) ||
+      row.flight.toLowerCase().includes(query) ||
+      row.route.toLowerCase().includes(query) ||
+      row.status.toLowerCase().includes(query)
+    );
+    renderBookingsTable(filtered);
+  });
+
+  // Sidebar toggle (mobile)
+  const sidebarToggle = document.getElementById('sidebarToggle');
+  const sidebar = document.getElementById('sidebar');
+
+  sidebarToggle.addEventListener('click', () => {
+    sidebar.classList.toggle('open');
+  });
+
+  // Theme toggle
+  const themeToggle = document.getElementById('themeToggle');
+  themeToggle.addEventListener('click', () => {
+    document.body.classList.toggle('dark');
+  });
+
+  // Refresh button (just simulates a refresh)
+  const refreshBtn = document.getElementById('refreshBtn');
+  refreshBtn.addEventListener('click', () => {
+    // In a real app, you would call your API here.
+    alert('Data refreshed (demo). Replace this with an API call.');
+  });
+
+  // Year in footer
+  document.getElementById('year').textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
